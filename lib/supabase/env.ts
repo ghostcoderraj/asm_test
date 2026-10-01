@@ -1,3 +1,11 @@
+export function publicAppUrl() {
+  const configured = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "")
+  if (configured && !configured.includes("localhost")) return configured
+  if (process.env.VERCEL_ENV === "production") return "https://test.anandsangit.com"
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
+  return configured || "http://localhost:3000"
+}
+
 export function isSupabaseConfigured() {
   return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
 }

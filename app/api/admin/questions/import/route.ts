@@ -7,6 +7,8 @@ import { clientAddress, rateLimit, sameOrigin } from "@/lib/security/guard"
 import { acceptedQuestionFile, importRowLimit } from "@/lib/security/upload"
 import { createAdminClient } from "@/lib/supabase/admin"
 
+export const maxDuration = 60
+
 export async function POST(request: Request) {
   if (!sameOrigin(request)) return Response.json(fail("FORBIDDEN"), { status: 403 })
   const admin = await requireAdmin()
@@ -16,7 +18,7 @@ export async function POST(request: Request) {
   const form = await request.formData()
   const file = form.get("file")
   if (!(file instanceof File)) return Response.json(fail("INVALID_INPUT", "Choose a file."), { status: 400 })
-  if (file.size > 5_000_000) return Response.json(fail("INVALID_INPUT", "Keep the file under 5 MB."), { status: 400 })
+  if (file.size > 4_500_000) return Response.json(fail("INVALID_INPUT", "Keep the file under 4.5 MB."), { status: 400 })
   const rejected = await acceptedQuestionFile(file)
   if (rejected) return Response.json(fail("INVALID_INPUT", rejected), { status: 400 })
 

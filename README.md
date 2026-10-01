@@ -2,7 +2,9 @@
 
 Standalone mock-test platform for **STET Music** and **BPSC Music**, built for Anand Sangeet Mahavidyalaya.
 
-This application does not replace or modify [www.anandsangit.com](https://www.anandsangit.com/). Deploy it on its own host, for example `test.anandsangit.com`.
+This application does not replace or modify [www.anandsangit.com](https://www.anandsangit.com/). Deploy it on Vercel at `test.anandsangit.com` only. Do not add `anandsangit.com` or `www.anandsangit.com` to this project, and do not change the Hostinger nameservers. Those already point at Vercel for the college site.
+
+On Vercel, set `NEXT_PUBLIC_APP_URL` to `https://test.anandsangit.com`. Copy the other values from `.env.example` into the project environment, then redeploy. In the project’s Domains settings, add only `test.anandsangit.com`.
 
 ## Architecture
 

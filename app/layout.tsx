@@ -3,6 +3,7 @@ import { Fraunces, Noto_Sans_Devanagari } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { InstallApp } from "@/components/pwa/install-app";
 import { Toaster } from "@/components/ui/sonner";
+import { publicAppUrl } from "@/lib/supabase/env";
 import "./globals.css";
 
 const source = Noto_Sans_Devanagari({
@@ -16,7 +17,7 @@ const fraunces = Fraunces({
   variable: "--font-fraunces",
 });
 
-const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+const appUrl = publicAppUrl();
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),

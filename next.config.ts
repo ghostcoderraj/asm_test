@@ -1,6 +1,10 @@
-import type { NextConfig } from "next";
+import path from "node:path"
+import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    root: path.join(process.cwd()),
+  },
   serverExternalPackages: ["exceljs"],
   async headers() {
     return [
@@ -11,7 +15,7 @@ const nextConfig: NextConfig = {
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "X-Frame-Options", value: "DENY" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=(self)" },
-          { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
+          { key: "Strict-Transport-Security", value: "max-age=63072000" },
           {
             key: "Content-Security-Policy",
             value: [
