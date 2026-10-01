@@ -7,7 +7,7 @@ import { clientAddress, rateLimit, sameOrigin } from "@/lib/security/guard"
 import { acceptedQuestionFile, importRowLimit } from "@/lib/security/upload"
 import { createAdminClient } from "@/lib/supabase/admin"
 
-export const maxDuration = 60
+export const maxDuration = 10
 
 export async function POST(request: Request) {
   if (!sameOrigin(request)) return Response.json(fail("FORBIDDEN"), { status: 403 })
