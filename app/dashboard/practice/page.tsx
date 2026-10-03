@@ -2,6 +2,7 @@ import Link from "next/link"
 import { PracticeStart } from "@/components/practice/start-panel"
 import { buttonVariants } from "@/components/ui/button"
 import { requireUser } from "@/lib/auth"
+import { practicePaper } from "@/lib/exam/papers"
 import { createClient } from "@/lib/supabase/server"
 import type { PracticeHome } from "@/types/practice"
 import { cn } from "cn"
@@ -35,7 +36,7 @@ export default async function PracticePage({
     : profile.target_exam === "BPSC"
       ? "BPSC"
       : "STET"
-  const paper = query.paper === "PAPER_II" ? "PAPER_II" : "PAPER_I"
+  const paper = practicePaper(query.paper, profile.target_paper)
   if (exam === "BPSC" || profile.target_exam === "BPSC") {
     return (
       <div className="grid gap-4">
@@ -44,7 +45,7 @@ export default async function PracticePage({
           BPSC Music practice is coming soon. The current series is STET Music.
         </p>
         {profile.target_exam === "BOTH" ? (
-          <Link href="/dashboard/practice?exam=STET&paper=PAPER_I" className={cn(buttonVariants(), "min-h-11 w-fit")}>Open STET practice</Link>
+          <Link href="/dashboard/practice?exam=STET&paper=BOTH" className={cn(buttonVariants(), "min-h-11 w-fit")}>Open STET practice</Link>
         ) : null}
       </div>
     )
@@ -59,7 +60,9 @@ export default async function PracticePage({
     <div className="grid gap-6">
       <div>
         <h1 className="font-heading text-3xl">STET Music Practice</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Practice by topic and subtopic.</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {paper === "BOTH" ? "Both papers together: Paper I and Paper II in one practice set." : "Practice by topic and subtopic."}
+        </p>
         <p className="mt-2 text-sm text-muted-foreground">Topics and subtopics are arranged for study. They are not an official exam weightage.</p>
       </div>
 
@@ -73,6 +76,7 @@ export default async function PracticePage({
       <div className="flex flex-wrap gap-2" role="tablist" aria-label="Paper">
         <Link href={href("PAPER_I")} className={cn(buttonVariants({ variant: paper === "PAPER_I" ? "default" : "outline" }), "min-h-11")} aria-current={paper === "PAPER_I" ? "page" : undefined}>Paper I</Link>
         <Link href={href("PAPER_II")} className={cn(buttonVariants({ variant: paper === "PAPER_II" ? "default" : "outline" }), "min-h-11")} aria-current={paper === "PAPER_II" ? "page" : undefined}>Paper II</Link>
+        <Link href={href("BOTH")} className={cn(buttonVariants({ variant: paper === "BOTH" ? "default" : "outline" }), "min-h-11")} aria-current={paper === "BOTH" ? "page" : undefined}>Both</Link>
       </div>
 
       {error ? <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">Questions could not be loaded. Please try again.</p> : null}

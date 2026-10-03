@@ -2,6 +2,12 @@ import type { TargetExam } from "@/types/domain"
 
 export type TargetPaper = "PAPER_I" | "PAPER_II" | "BOTH"
 
+export function practicePaper(value: string | undefined, fallback?: string | null): TargetPaper {
+  if (value === "PAPER_I" || value === "PAPER_II" || value === "BOTH") return value
+  if (fallback === "PAPER_I" || fallback === "PAPER_II") return fallback
+  return "BOTH"
+}
+
 export function paperLabel(paper: string | null | undefined) {
   if (paper === "PAPER_I") return "Paper I"
   if (paper === "PAPER_II") return "Paper II"

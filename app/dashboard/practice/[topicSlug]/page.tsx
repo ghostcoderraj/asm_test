@@ -2,6 +2,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { PracticeStart } from "@/components/practice/start-panel"
 import { requireUser } from "@/lib/auth"
+import { practicePaper } from "@/lib/exam/papers"
 import { createClient } from "@/lib/supabase/server"
 import type { PracticeTopic } from "@/types/practice"
 
@@ -15,7 +16,7 @@ export default async function PracticeTopicPage({
   await requireUser()
   const { topicSlug } = await params
   const query = await searchParams
-  const paper = query.paper === "PAPER_II" ? "PAPER_II" : "PAPER_I"
+  const paper = practicePaper(query.paper)
   const supabase = await createClient()
   const { data, error } = await supabase.rpc("practice_topic", { p_slug: topicSlug, p_exam: "STET", p_paper: paper })
   if (error) {
