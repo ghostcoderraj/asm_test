@@ -2,6 +2,7 @@
 
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { createClient } from "@/lib/supabase/server"
 import { clientAddress, rateLimit } from "@/lib/security/guard"
 import { isSupabaseConfigured } from "@/lib/supabase/env"
@@ -74,27 +75,37 @@ export async function registerAction(_prev: ActionResult | null, formData: FormD
     return fail("INVALID_INPUT", "Too many accounts were created from this network. Please wait and try again.")
   }
 
-  const supabase = await createClient()
-  const { data, error } = await supabase.auth.signUp({
-    phone,
-    password: parsed.data.password,
-    options: {
-      data: {
+  let createdId: string | undefined
+  try {
+    const admin = createAdminClient()
+    const { data, error } = await admin.auth.admin.createUser({
+      phone,
+      password: parsed.data.password,
+      phone_confirm: true,
+      user_metadata: {
         full_name: parsed.data.fullName,
         mobile_number: phone,
         target_exam: parsed.data.targetExam,
         target_paper: parsed.data.targetExam === "BPSC" ? null : parsed.data.targetPaper,
       },
-    },
-  })
-
-  if (error) {
-    const text = error.message.toLowerCase()
-    if (text.includes("already") || text.includes("registered") || text.includes("exists")) return fail("ACCOUNT_EXISTS")
+    })
+    if (error || !data.user) {
+      const text = (error?.message ?? "").toLowerCase()
+      if (text.includes("already") || text.includes("registered") || text.includes("exists") || text.includes("duplicate")) {
+        return fail("ACCOUNT_EXISTS")
+      }
+      return fail("UNEXPECTED_ERROR", "Unable to create the account. Please try again.")
+    }
+    createdId = data.user.id
+  } catch {
     return fail("UNEXPECTED_ERROR", "Unable to create the account. Please try again.")
   }
 
-  if (!data.session) return fail("PHONE_CONFIRMATION_ENABLED")
+  const supabase = await createClient()
+  const { error: signInError } = await supabase.auth.signInWithPassword({ phone, password: parsed.data.password })
+  if (signInError) {
+    return fail("UNEXPECTED_ERROR", createdId ? "The account was created. Please log in with the same mobile number and password." : "Unable to create the account. Please try again.")
+  }
   redirect("/dashboard")
 }
 
