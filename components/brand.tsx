@@ -18,11 +18,11 @@ export function BrandMark({ compact = false, sealClassName = "size-16" }: { comp
     <Link href="/" className="flex min-w-0 items-center gap-3">
       <CollegeSeal className={sealClassName} />
       <span className="min-w-0 leading-tight">
-        <span className="block truncate font-heading text-sm font-semibold tracking-wide text-primary">
+        <span className="block font-heading text-sm font-semibold tracking-wide text-balance text-primary">
           Anand Sangeet Mahavidyalaya
         </span>
         {compact ? null : (
-          <span className="block truncate text-xs text-muted-foreground">Music Test Series</span>
+          <span className="block text-xs text-muted-foreground">Music Test Series</span>
         )}
       </span>
     </Link>

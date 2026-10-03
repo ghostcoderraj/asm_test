@@ -188,7 +188,7 @@ export function TestRunner({ paper }: { paper: Paper }) {
 
   return (
     <div className="mx-auto grid w-full max-w-6xl gap-4 lg:grid-cols-[1fr_280px]">
-      <section className="pb-36 lg:pb-0">
+      <section className="pb-[calc(10rem+env(safe-area-inset-bottom))] lg:pb-0">
         <div className="sticky top-16 z-10 -mx-4 mb-4 flex items-center justify-between gap-3 border-b border-border bg-background/95 px-4 py-3 md:top-0 lg:static lg:mx-0 lg:rounded-xl lg:border lg:bg-card">
           <div className="min-w-0">
             <p className="truncate text-sm text-muted-foreground">{paper.attempt.title}</p>

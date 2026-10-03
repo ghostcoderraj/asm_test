@@ -48,11 +48,12 @@ export const viewport: Viewport = {
   themeColor: "#6f2430",
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${source.variable} ${fraunces.variable} h-full antialiased`}>
+    <html lang="en" suppressHydrationWarning className={`${source.variable} ${fraunces.variable} antialiased`}>
       <head>
         <meta name="apple-mobile-web-app-capable" content="yes" />
       </head>

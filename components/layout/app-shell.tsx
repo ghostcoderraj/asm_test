@@ -52,7 +52,7 @@ export function AppShell({
           </div>
         </aside>
         <div>
-          <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-border bg-card/95 px-4 py-3 md:hidden">
+          <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-border bg-card/95 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] md:hidden">
             <BrandMark compact sealClassName="size-11" />
             <Sheet>
               <SheetTrigger render={<Button variant="outline" size="icon" className="size-11" aria-label="Open menu" />}>
@@ -69,7 +69,7 @@ export function AppShell({
               </SheetContent>
             </Sheet>
           </header>
-          <main className="px-4 py-6 md:px-8">{children}</main>
+          <main className="px-4 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] md:px-8">{children}</main>
           <SiteCredit />
         </div>
       </div>

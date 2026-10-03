@@ -14,11 +14,9 @@ const links = [
 
 export function PublicHeader({ signedIn = false }: { signedIn?: boolean }) {
   return (
-    <header className="border-b border-border/80 bg-card/90">
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-3">
-        <div className="min-w-0 flex-1">
-          <BrandMark sealClassName="size-12" />
-        </div>
+    <header className="border-b border-border/80 bg-card/90 pt-[env(safe-area-inset-top)]">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-3 md:flex-row md:items-center md:justify-between">
+        <BrandMark sealClassName="size-12" />
         <nav className="hidden items-center gap-5 text-sm md:flex">
           {links.map(([label, href]) => (
             <Link key={href} href={href} className="text-muted-foreground hover:text-foreground">
@@ -26,33 +24,30 @@ export function PublicHeader({ signedIn = false }: { signedIn?: boolean }) {
             </Link>
           ))}
         </nav>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="grid grid-cols-2 gap-2 md:flex md:items-center">
           {signedIn ? (
-            <Link href="/dashboard" className={cn(buttonVariants(), "min-h-11 px-4")}>
+            <Link href="/dashboard" className={cn(buttonVariants(), "col-span-2 min-h-11 w-full justify-center px-4 md:col-span-1 md:w-auto")}>
               Dashboard
             </Link>
           ) : (
             <>
-              <Link href="/login" className={cn(buttonVariants({ variant: "ghost" }), "min-h-11 px-3")}>
+              <Link href="/login" className={cn(buttonVariants({ variant: "ghost" }), "min-h-11 w-full justify-center px-3")}>
                 Login
               </Link>
-              <Link href="/register" className={cn(buttonVariants(), "min-h-11 px-4")}>
+              <Link href="/register" className={cn(buttonVariants(), "min-h-11 w-full justify-center px-4")}>
                 Create account
               </Link>
             </>
           )}
         </div>
       </div>
-      <details className="border-t border-border px-4 py-2 md:hidden">
-        <summary className="min-h-11 cursor-pointer list-none text-sm font-medium [&::-webkit-details-marker]:hidden">Menu</summary>
-        <nav className="grid gap-1 pb-2">
-          {links.map(([label, href]) => (
-            <Link key={href} href={href} className="flex min-h-11 items-center text-sm text-muted-foreground">
-              {label}
-            </Link>
-          ))}
-        </nav>
-      </details>
+      <nav className="flex gap-2 overflow-x-auto px-4 pb-3 md:hidden">
+        {links.map(([label, href]) => (
+          <Link key={href} href={href} className="inline-flex min-h-11 shrink-0 items-center rounded-lg border border-border px-3 text-sm">
+            {label}
+          </Link>
+        ))}
+      </nav>
     </header>
   )
 }

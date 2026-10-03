@@ -127,9 +127,11 @@
   html {
     @apply font-sans;
     touch-action: manipulation;
-    overflow-x: clip;
+    height: auto;
+    min-height: 100%;
   }
   body {
-    overflow-x: hidden;
+    min-height: 100%;
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }
