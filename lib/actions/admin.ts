@@ -69,7 +69,7 @@ export async function saveQuestionAction(_prev: ActionResult | null, formData: F
     isUuid(id) ? supabase.from("questions").update(row).eq("id", id) : supabase.from("questions").insert(row)
   let { error } = await write(payload)
   if (error?.message?.toLowerCase().includes("paper") || error?.message?.toLowerCase().includes("question_type")) {
-    const { paper: _paper, question_type: _type, ...legacy } = payload
+    const legacy = Object.fromEntries(Object.entries(payload).filter(([key]) => key !== "paper" && key !== "question_type"))
     ;({ error } = await write(legacy))
   }
   if (error) return mapDbError(error)

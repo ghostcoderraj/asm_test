@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { changePasswordAction, loginAction, registerAction, updateProfileAction } from "@/lib/actions/auth"
-import { controlClass, SubmitButton } from "@/components/form-bits"
+import { SubmitButton } from "@/components/form-bits"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import type { ActionResult } from "@/lib/errors"

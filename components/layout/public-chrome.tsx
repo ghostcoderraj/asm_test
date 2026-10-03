@@ -16,7 +16,9 @@ export function PublicHeader({ signedIn = false }: { signedIn?: boolean }) {
   return (
     <header className="border-b border-border/80 bg-card/90">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-3">
-        <BrandMark />
+        <div className="min-w-0 flex-1">
+          <BrandMark sealClassName="size-12" />
+        </div>
         <nav className="hidden items-center gap-5 text-sm md:flex">
           {links.map(([label, href]) => (
             <Link key={href} href={href} className="text-muted-foreground hover:text-foreground">
@@ -24,7 +26,7 @@ export function PublicHeader({ signedIn = false }: { signedIn?: boolean }) {
             </Link>
           ))}
         </nav>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           {signedIn ? (
             <Link href="/dashboard" className={cn(buttonVariants(), "min-h-11 px-4")}>
               Dashboard
@@ -41,6 +43,16 @@ export function PublicHeader({ signedIn = false }: { signedIn?: boolean }) {
           )}
         </div>
       </div>
+      <details className="border-t border-border px-4 py-2 md:hidden">
+        <summary className="min-h-11 cursor-pointer list-none text-sm font-medium [&::-webkit-details-marker]:hidden">Menu</summary>
+        <nav className="grid gap-1 pb-2">
+          {links.map(([label, href]) => (
+            <Link key={href} href={href} className="flex min-h-11 items-center text-sm text-muted-foreground">
+              {label}
+            </Link>
+          ))}
+        </nav>
+      </details>
     </header>
   )
 }

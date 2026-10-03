@@ -13,10 +13,10 @@ export function CollegeSeal({ className }: { className?: string }) {
   )
 }
 
-export function BrandMark({ compact = false }: { compact?: boolean }) {
+export function BrandMark({ compact = false, sealClassName = "size-16" }: { compact?: boolean; sealClassName?: string }) {
   return (
     <Link href="/" className="flex min-w-0 items-center gap-3">
-      <CollegeSeal className="size-16" />
+      <CollegeSeal className={sealClassName} />
       <span className="min-w-0 leading-tight">
         <span className="block truncate font-heading text-sm font-semibold tracking-wide text-primary">
           Anand Sangeet Mahavidyalaya

@@ -42,8 +42,8 @@ export default async function HistoryPage() {
           return (
             <article key={row.id} className="rounded-xl border border-border bg-card p-4 text-sm">
               <h2 className="font-medium">{title}</h2>
-              <p className="mt-1 text-muted-foreground">
-                {examLabel(exam)} · {formatDate(row.submitted_at ?? row.created_at)} · Score {done ? row.score : "—"} · {done ? `${row.percentage}%` : row.status} · Correct {row.correct_answers ?? "—"} · Wrong {row.wrong_answers ?? "—"} · {formatDuration(row.time_taken)}
+              <p className="mt-1 break-words text-muted-foreground">
+                {examLabel(exam)} · {formatDate(row.submitted_at ?? row.created_at)} · Score {done ? (row.score ?? "—") : "—"} · {done ? `${row.percentage ?? 0}%` : row.status} · Correct {row.correct_answers ?? "—"} · Wrong {row.wrong_answers ?? "—"} · {formatDuration(row.time_taken)}
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {done ? (

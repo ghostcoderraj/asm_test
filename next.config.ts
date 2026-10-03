@@ -1,6 +1,8 @@
 import path from "node:path"
 import type { NextConfig } from "next"
 
+const isDev = process.env.NODE_ENV !== "production"
+
 const nextConfig: NextConfig = {
   turbopack: {
     root: path.join(process.cwd()),
@@ -20,7 +22,7 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' https://checkout.razorpay.com",
+              `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://checkout.razorpay.com`,
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob: https:",
               "font-src 'self' data:",

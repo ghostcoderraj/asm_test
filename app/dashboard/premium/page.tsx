@@ -20,11 +20,13 @@ export default async function PremiumPage({ searchParams }: { searchParams: Prom
   const profile = await requireUser()
   const params = await searchParams
   const supabase = await createClient()
-  const [{ data: plans }, { data: subscription }] = await Promise.all([
+  const [{ data: plans }, { data: subscriptions }] = await Promise.all([
     supabase.from("subscription_plans").select("id, name, description, price, currency, duration_days, features").eq("is_active", true).order("price"),
-    supabase.from("subscriptions").select("status, expiry_date, plan_id").eq("user_id", profile.id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
+    supabase.from("subscriptions").select("status, expiry_date, plan_id, created_at").eq("user_id", profile.id).order("created_at", { ascending: false }),
   ])
-  const active = subscription?.status === "ACTIVE" && subscription.expiry_date && new Date(subscription.expiry_date) > new Date()
+  const rows = subscriptions ?? []
+  const subscription = rows.find((row) => row.status === "ACTIVE" && row.expiry_date && new Date(row.expiry_date) > new Date()) ?? rows[0]
+  const active = subscription?.status === "ACTIVE" && Boolean(subscription.expiry_date && new Date(subscription.expiry_date) > new Date())
   const offered = profile.target_exam === "BPSC"
     ? []
     : ((plans as Plan[] | null) ?? []).filter((plan) => planTargetExam(plan.name) === profile.target_exam)

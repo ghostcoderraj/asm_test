@@ -53,7 +53,7 @@ export function AppShell({
         </aside>
         <div>
           <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-border bg-card/95 px-4 py-3 md:hidden">
-            <BrandMark compact />
+            <BrandMark compact sealClassName="size-11" />
             <Sheet>
               <SheetTrigger render={<Button variant="outline" size="icon" className="size-11" aria-label="Open menu" />}>
                 <Menu />

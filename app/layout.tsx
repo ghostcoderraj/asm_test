@@ -28,6 +28,15 @@ export const metadata: Metadata = {
   description:
     "Prepare for STET Music and BPSC Music with mock tests, topic practice, and detailed analytics from Anand Sangeet Mahavidyalaya.",
   applicationName: "Anand Sangeet Music Test Series",
+  alternates: { canonical: appUrl },
+  openGraph: {
+    title: "STET & BPSC Music Mock Tests | Anand Sangeet Mahavidyalaya",
+    description:
+      "Prepare for STET Music and BPSC Music with mock tests, topic practice, and detailed analytics from Anand Sangeet Mahavidyalaya.",
+    url: appUrl,
+    siteName: "Anand Sangeet Music Test Series",
+    type: "website",
+  },
   appleWebApp: {
     capable: true,
     title: "ASM Tests",

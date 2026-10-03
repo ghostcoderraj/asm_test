@@ -26,51 +26,61 @@ export function CheckoutButton({ planId, label }: { planId: string; label: strin
   async function pay() {
     setPending(true)
     setMessage(null)
-    const response = await fetch("/api/payments/create-order", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ planId }),
-    })
-    const payload = (await response.json()) as CheckoutResponse
-    if (!payload.success || !payload.keyId || !payload.orderId || !windowLoaded()) {
-      if (!payload.success) setMessage(payload.message ?? "Unable to start the payment.")
-      setPending(false)
-      if (!payload.success) return
-    }
-    if (!payload.keyId || !payload.orderId) return
-
-    await loadCheckout()
-    if (!window.Razorpay) {
-      setMessage("Razorpay checkout could not be loaded.")
-      setPending(false)
-      return
-    }
-
-    const checkout = new window.Razorpay({
-      key: payload.keyId,
-      amount: payload.amount,
-      currency: payload.currency,
-      order_id: payload.orderId,
-      name: "Anand Sangeet Mahavidyalaya",
-      description: payload.planName,
-      theme: { color: "#6E1E2A" },
-      modal: { ondismiss: () => setPending(false) },
-      handler: async (result: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
-        const verified = await fetch("/api/payments/verify", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(result),
-        })
-        const outcome = (await verified.json()) as CheckoutResponse
-        if (outcome.success) {
-          window.location.href = "/dashboard/premium?paid=1"
-          return
-        }
-        setMessage(outcome.message ?? "Payment was not verified. Premium access was not activated.")
+    try {
+      const response = await fetch("/api/payments/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planId }),
+      })
+      const payload = (await response.json().catch(() => null)) as CheckoutResponse | null
+      if (!response.ok || !payload?.success || !payload.keyId || !payload.orderId) {
+        setMessage(payload?.message ?? "Unable to start the payment.")
         setPending(false)
-      },
-    })
-    checkout.open()
+        return
+      }
+
+      await loadCheckout()
+      if (!window.Razorpay) {
+        setMessage("Razorpay checkout could not be loaded.")
+        setPending(false)
+        return
+      }
+
+      const checkout = new window.Razorpay({
+        key: payload.keyId,
+        amount: payload.amount,
+        currency: payload.currency,
+        order_id: payload.orderId,
+        name: "Anand Sangeet Mahavidyalaya",
+        description: payload.planName,
+        theme: { color: "#6E1E2A" },
+        modal: { ondismiss: () => setPending(false) },
+        handler: async (result: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
+          try {
+            const verified = await fetch("/api/payments/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(result),
+            })
+            const outcome = (await verified.json().catch(() => null)) as CheckoutResponse | null
+            if (verified.ok && outcome?.success) {
+              // Full navigation so the server reads the new subscription.
+              // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+              window.location.assign("/dashboard/premium?paid=1")
+              return
+            }
+            setMessage(outcome?.message ?? "Payment was not verified. Premium access was not activated.")
+          } catch {
+            setMessage("Payment was received, but confirmation did not finish. If mock tests stay locked, contact support.")
+          }
+          setPending(false)
+        },
+      })
+      checkout.open()
+    } catch {
+      setMessage("The payment could not be started. Check your connection and try again.")
+      setPending(false)
+    }
   }
 
   return (
@@ -81,10 +91,6 @@ export function CheckoutButton({ planId, label }: { planId: string; label: strin
       {message ? <p className="text-sm text-destructive">{message}</p> : null}
     </div>
   )
-}
-
-function windowLoaded() {
-  return typeof window !== "undefined"
 }
 
 function loadCheckout() {

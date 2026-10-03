@@ -46,10 +46,6 @@ export function TicketThread({
     }
   }, [ticketId])
 
-  useEffect(() => {
-    if (state?.success) setMessages((current) => current)
-  }, [state])
-
   return (
     <div className="grid gap-4">
       <ol className="grid gap-3">

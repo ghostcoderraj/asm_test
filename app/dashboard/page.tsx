@@ -86,7 +86,7 @@ export default async function DashboardPage() {
                 <Link key={attempt.id} href={attempt.status === "IN_PROGRESS" ? `/dashboard/attempt/${attempt.id}` : `/dashboard/results/${attempt.id}`} className="rounded-lg border border-border bg-card p-3 text-sm">
                   <span className="font-medium">{attempt.title}</span>
                   <span className="mt-1 block text-muted-foreground">
-                    {examLabel(attempt.exam)} · {formatDate(attempt.submitted_at ?? attempt.created_at)} · {attempt.status === "IN_PROGRESS" ? "In progress" : `${attempt.score}/${attempt.percentage}%`} · {formatDuration(attempt.time_taken)}
+                    {examLabel(attempt.exam)} · {formatDate(attempt.submitted_at ?? attempt.created_at)} · {attempt.status === "IN_PROGRESS" ? "In progress" : `Score ${attempt.score} · ${attempt.percentage}%`} · {formatDuration(attempt.time_taken)}
                   </span>
                 </Link>
               ))}

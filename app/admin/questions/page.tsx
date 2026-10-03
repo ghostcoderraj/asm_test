@@ -27,7 +27,7 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
         <Link href="/admin/questions/new" className="inline-flex min-h-11 items-center rounded-lg bg-primary px-4 text-sm text-primary-foreground">New question</Link>
       </div>
       <form className="grid gap-2 sm:grid-cols-5">
-        <input name="q" defaultValue={params.q} placeholder="Search" className="h-11 rounded-lg border border-input px-3" />
+        <input name="q" defaultValue={params.q} placeholder="Search" aria-label="Search questions" className="h-11 rounded-lg border border-input px-3" />
         <select name="exam" defaultValue={params.exam ?? ""} className="h-11 rounded-lg border border-input px-3">
           <option value="">Exam</option>
           <option>STET</option>
@@ -72,7 +72,7 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
               const topicName = Array.isArray(topic) ? topic[0]?.name : topic?.name
               return (
                 <tr key={question.id} className="border-t border-border align-top">
-                  <td className="max-w-sm p-3">{question.question_text}</td>
+                  <td className="max-w-sm p-3 break-words">{question.question_text}</td>
                   <td className="p-3">{question.exam}</td>
                   <td className="p-3">{topicName}</td>
                   <td className="p-3">{question.difficulty}</td>
@@ -92,11 +92,22 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
           </tbody>
         </table>
       </div>
+      {(data ?? []).length === 0 ? <p className="text-sm text-muted-foreground">No questions match these filters.</p> : null}
       <p className="text-sm text-muted-foreground">Page {page} · {count ?? 0} questions</p>
       <div className="flex gap-3 text-sm">
-        {page > 1 ? <Link href={`?page=${page - 1}`}>Previous</Link> : null}
-        {(count ?? 0) > page * size ? <Link href={`?page=${page + 1}`}>Next</Link> : null}
+        {page > 1 ? <Link href={pageHref(params, page - 1)} className="inline-flex min-h-11 items-center underline">Previous</Link> : null}
+        {(count ?? 0) > page * size ? <Link href={pageHref(params, page + 1)} className="inline-flex min-h-11 items-center underline">Next</Link> : null}
       </div>
     </div>
   )
+}
+
+function pageHref(params: { q?: string; exam?: string; topic?: string; difficulty?: string; status?: string }, page: number) {
+  const search = new URLSearchParams()
+  for (const key of ["q", "exam", "topic", "difficulty", "status"] as const) {
+    const value = params[key]
+    if (value) search.set(key, value)
+  }
+  search.set("page", String(page))
+  return `?${search.toString()}`
 }

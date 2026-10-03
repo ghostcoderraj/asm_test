@@ -56,7 +56,10 @@ export async function POST(request: Request) {
       currency: plan.currency,
       status: "CREATED",
     })
-    if (paymentError) return apiError("UNEXPECTED_ERROR", 500)
+    if (paymentError) {
+      await admin.from("subscriptions").delete().eq("id", subscription.id)
+      return apiError("UNEXPECTED_ERROR", 500)
+    }
 
     return Response.json({
       success: true,

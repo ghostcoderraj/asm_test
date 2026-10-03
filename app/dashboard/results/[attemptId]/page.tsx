@@ -67,7 +67,7 @@ export default async function ResultPage({ params }: { params: Promise<{ attempt
         {paper.questions.map((question, index) => (
           <article key={question.id} className="rounded-xl border border-border bg-card p-4">
             <p className="text-xs text-muted-foreground">{question.topic_name} · Question {index + 1}</p>
-            <h3 className="mt-1 font-medium">{question.question_text}</h3>
+            <h3 className="mt-1 font-medium break-words">{question.question_text}</h3>
             <ul className="mt-3 grid gap-1 text-sm">
               {(["A", "B", "C", "D"] as const).map((key) => {
                 const text = question[`option_${key.toLowerCase()}` as "option_a"]

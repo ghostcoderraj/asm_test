@@ -70,6 +70,15 @@ export function TestRunner({ paper }: { paper: Paper }) {
   }, [])
 
   useEffect(() => {
+    if (!confirming) return
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape" && !submittingRef.current) setConfirming(false)
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [confirming])
+
+  useEffect(() => {
     if (remaining === 0) void finish(true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [remaining])
@@ -180,7 +189,7 @@ export function TestRunner({ paper }: { paper: Paper }) {
   return (
     <div className="mx-auto grid w-full max-w-6xl gap-4 lg:grid-cols-[1fr_280px]">
       <section className="pb-36 lg:pb-0">
-        <div className="sticky top-0 z-10 -mx-4 mb-4 flex items-center justify-between gap-3 border-b border-border bg-background/95 px-4 py-3 lg:static lg:mx-0 lg:rounded-xl lg:border lg:bg-card">
+        <div className="sticky top-16 z-10 -mx-4 mb-4 flex items-center justify-between gap-3 border-b border-border bg-background/95 px-4 py-3 md:top-0 lg:static lg:mx-0 lg:rounded-xl lg:border lg:bg-card">
           <div className="min-w-0">
             <p className="truncate text-sm text-muted-foreground">{paper.attempt.title}</p>
             <p className="font-medium">Question {index + 1} of {questions.length}</p>
@@ -198,7 +207,7 @@ export function TestRunner({ paper }: { paper: Paper }) {
         <article className="rounded-xl border border-border bg-card p-4">
           <p className="text-xs tracking-wide text-muted-foreground">{[current.topic_name, current.subtopic_name].filter(Boolean).join(" · ")}</p>
           {paper.attempt.kind === "PRACTICE" ? <QuestionBadge question={current} /> : null}
-          <h1 className="mt-2 font-heading text-xl leading-snug">{current.question_text}</h1>
+          <h1 className="mt-2 font-heading text-xl leading-snug break-words">{current.question_text}</h1>
           {current.image_path ? <p className="mt-2 text-xs text-muted-foreground">Image: {current.image_path}</p> : null}
           <div className="mt-4 grid gap-2">
             {options.map(([key, text]) => (
