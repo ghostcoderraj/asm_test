@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { CheckoutButton } from "@/components/payments/checkout-button"
 import { requireUser } from "@/lib/auth"
 import { formatDate, formatInr, examLabel } from "@/lib/format"
@@ -34,7 +35,12 @@ export default async function PremiumPage({ searchParams }: { searchParams: Prom
       <p className="text-sm text-muted-foreground">
         Your target is {examLabel(profile.target_exam)}. The price below is the plan for that exam. Change the target exam from Profile if you are preparing for a different exam.
       </p>
-      {params.paid ? <p className="rounded-lg bg-muted px-3 py-2 text-sm">Payment received. Premium is active only after the server verifies the Razorpay signature.</p> : null}
+      {params.paid && active ? (
+        <p className="rounded-lg bg-muted px-3 py-2 text-sm">
+          Payment verified. Premium is active. <Link href="/dashboard/tests" className="text-primary underline">Open mock tests</Link>
+        </p>
+      ) : null}
+      {params.paid && !active ? <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">The payment could not be confirmed, so mock tests are still locked.</p> : null}
       <p className="text-sm text-muted-foreground">
         Paid but the course is still locked? Call <a className="text-primary underline" href="tel:+91915327692">+91 915327692</a> or email <a className="text-primary underline" href="mailto:anandsangitmahavidyalaya@gmail.com">anandsangitmahavidyalaya@gmail.com</a>.
       </p>

@@ -81,6 +81,14 @@ export async function activateVerifiedPayment(input: {
   if (input.source === "checkout" && !verifyPaymentSignature(input.orderId, input.paymentId, input.signature)) {
     return { ok: false as const, code: "PAYMENT_VERIFY_FAILED" }
   }
+  if (payment.status === "authorized") {
+    const captured = await fetch(`https://api.razorpay.com/v1/payments/${payment.id}/capture`, {
+      method: "POST",
+      headers: { Authorization: authHeader(), "Content-Type": "application/json" },
+      body: JSON.stringify({ amount: payment.amount, currency: payment.currency }),
+    })
+    if (!captured.ok) return { ok: false as const, code: "PAYMENT_VERIFY_FAILED" }
+  }
 
   const { error } = await admin.rpc("activate_premium_payment", {
     p_order_id: input.orderId,
