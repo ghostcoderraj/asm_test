@@ -16,12 +16,13 @@ export async function POST(request: Request) {
   const payment = event.payload?.payment?.entity
   if ((event.event === "payment.captured" || event.event === "order.paid") && payment?.id && payment.order_id) {
     try {
-      await activateVerifiedPayment({
+      const result = await activateVerifiedPayment({
         orderId: payment.order_id,
         paymentId: payment.id,
         signature: signature ?? "webhook",
         source: "webhook",
       })
+      if (!result.ok) return apiError(result.code, 400)
     } catch {
       return apiError("PAYMENT_VERIFY_FAILED", 400)
     }

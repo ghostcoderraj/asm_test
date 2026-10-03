@@ -126,6 +126,7 @@
   }
   html {
     @apply font-sans;
+    touch-action: manipulation;
   }
   body {
     overflow-x: hidden;

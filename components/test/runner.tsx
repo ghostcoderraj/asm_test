@@ -54,9 +54,11 @@ export function TestRunner({ paper }: { paper: Paper }) {
   const [index, setIndex] = useState(0)
   const [now, setNow] = useState(() => Date.now())
   const [confirming, setConfirming] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const started = useRef(Date.now())
-  const submitting = useRef(false)
+  const submittingRef = useRef(false)
+  const saveTask = useRef<Promise<void>>(Promise.resolve())
   const finishRef = useRef<(auto?: boolean) => Promise<void>>(async () => {})
   const ends = new Date(paper.attempt.ends_at).getTime()
   const remaining = Math.max(0, Math.floor((ends - now) / 1000))
@@ -74,33 +76,17 @@ export function TestRunner({ paper }: { paper: Paper }) {
 
   useEffect(() => {
     if (paper.attempt.kind !== "MOCK") return
-    let timer = 0
     function leave() {
-      window.clearTimeout(timer)
       setMessage("You left the test screen. The test is being submitted.")
       void finishRef.current(true)
     }
     function onVisibility() {
       if (document.visibilityState === "hidden") leave()
     }
-    function onBlur() {
-      window.clearTimeout(timer)
-      timer = window.setTimeout(() => {
-        if (!document.hasFocus() || document.visibilityState === "hidden") leave()
-      }, 250)
-    }
-    function onFocus() {
-      window.clearTimeout(timer)
-    }
     document.addEventListener("visibilitychange", onVisibility)
-    window.addEventListener("blur", onBlur)
-    window.addEventListener("focus", onFocus)
     window.addEventListener("pagehide", leave)
     return () => {
-      window.clearTimeout(timer)
       document.removeEventListener("visibilitychange", onVisibility)
-      window.removeEventListener("blur", onBlur)
-      window.removeEventListener("focus", onFocus)
       window.removeEventListener("pagehide", leave)
     }
   }, [paper.attempt.kind])
@@ -123,20 +109,24 @@ export function TestRunner({ paper }: { paper: Paper }) {
   async function persist(question: PaperQuestion, options?: { visitedOnly?: boolean }) {
     const elapsed = Math.max(1, Math.round((Date.now() - started.current) / 1000))
     started.current = Date.now()
-    const result = await saveResponseAction({
-      attemptId: paper.attempt.id,
-      questionId: question.id,
-      selected: question.selected_answer,
-      marked: question.is_marked,
-      timeTaken: options?.visitedOnly ? 0 : elapsed,
-    })
-    if (!result.success && result.code === "ATTEMPT_CLOSED") {
-      router.push(`/dashboard/results/${paper.attempt.id}`)
-      return
-    }
-    if (result.success && "status" in result && result.status === "AUTO_SUBMITTED") {
-      router.push(`/dashboard/results/${paper.attempt.id}`)
-    }
+    const task = (async () => {
+      const result = await saveResponseAction({
+        attemptId: paper.attempt.id,
+        questionId: question.id,
+        selected: question.selected_answer,
+        marked: question.is_marked,
+        timeTaken: options?.visitedOnly ? 0 : elapsed,
+      })
+      if (!result.success && result.code === "ATTEMPT_CLOSED") {
+        router.push(`/dashboard/results/${paper.attempt.id}`)
+        return
+      }
+      if (result.success && "status" in result && result.status === "AUTO_SUBMITTED") {
+        router.push(`/dashboard/results/${paper.attempt.id}`)
+      }
+    })()
+    saveTask.current = task
+    await task
   }
 
   function updateCurrent(patch: Partial<PaperQuestion>) {
@@ -149,12 +139,15 @@ export function TestRunner({ paper }: { paper: Paper }) {
   }
 
   async function finish(auto = false) {
-    if (submitting.current) return
-    submitting.current = true
-    if (current) await persist(current)
+    if (submittingRef.current) return
+    submittingRef.current = true
+    setSubmitting(true)
+    setConfirming(false)
+    await saveTask.current
     const result = await submitAttemptAction(paper.attempt.id, auto)
     if (result && !result.success) {
-      submitting.current = false
+      submittingRef.current = false
+      setSubmitting(false)
       setMessage(result.message)
     }
   }
@@ -186,7 +179,7 @@ export function TestRunner({ paper }: { paper: Paper }) {
 
   return (
     <div className="mx-auto grid w-full max-w-6xl gap-4 lg:grid-cols-[1fr_280px]">
-      <section className="pb-28 lg:pb-0">
+      <section className="pb-36 lg:pb-0">
         <div className="sticky top-0 z-10 -mx-4 mb-4 flex items-center justify-between gap-3 border-b border-border bg-background/95 px-4 py-3 lg:static lg:mx-0 lg:rounded-xl lg:border lg:bg-card">
           <div className="min-w-0">
             <p className="truncate text-sm text-muted-foreground">{paper.attempt.title}</p>
@@ -259,18 +252,18 @@ export function TestRunner({ paper }: { paper: Paper }) {
           <h2 className="font-medium">Question palette</h2>
           <div className="mt-3">{palette}</div>
           <Legend counts={counts} />
-          <Button type="button" className="mt-4 min-h-11 w-full" onClick={() => setConfirming(true)}>
-            Submit test
+          <Button type="button" className="mt-4 min-h-11 w-full" disabled={submitting} onClick={() => setConfirming(true)}>
+            {submitting ? "Submitting…" : "Submit test"}
           </Button>
         </div>
       </aside>
 
-      <div className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 gap-2 border-t border-border bg-card p-3 lg:hidden">
-        <Button type="button" variant="outline" className="min-h-11" disabled={index === 0} onClick={() => setIndex((value) => value - 1)}>
+      <div className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-3 gap-2 border-t border-border bg-card p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden">
+        <Button type="button" variant="outline" className="min-h-12" disabled={index === 0 || submitting} onClick={() => setIndex((value) => value - 1)}>
           Prev
         </Button>
         <Sheet>
-          <SheetTrigger className="min-h-11 rounded-lg border border-border text-sm">Palette</SheetTrigger>
+          <SheetTrigger className="min-h-12 rounded-lg border border-border text-sm touch-manipulation">Palette</SheetTrigger>
           <SheetContent side="bottom" className="max-h-[80dvh] overflow-auto">
             <SheetHeader>
               <SheetTitle>Questions</SheetTitle>
@@ -278,14 +271,17 @@ export function TestRunner({ paper }: { paper: Paper }) {
             <div className="px-4 pb-4">
               {palette}
               <Legend counts={counts} />
+              <Button type="button" className="mt-4 min-h-12 w-full" disabled={submitting} onClick={() => setConfirming(true)}>
+                {submitting ? "Submitting…" : "Submit test"}
+              </Button>
             </div>
           </SheetContent>
         </Sheet>
-        <Button type="button" variant="outline" className="min-h-11" disabled={index === questions.length - 1} onClick={() => setIndex((value) => value + 1)}>
+        <Button type="button" variant="outline" className="min-h-12" disabled={index === questions.length - 1 || submitting} onClick={() => setIndex((value) => value + 1)}>
           Next
         </Button>
-        <Button type="button" className="min-h-11" onClick={() => setConfirming(true)}>
-          Submit
+        <Button type="button" className="col-span-3 min-h-12 text-base" disabled={submitting} onClick={() => setConfirming(true)}>
+          {submitting ? "Submitting…" : "Submit test"}
         </Button>
       </div>
 
@@ -306,11 +302,11 @@ export function TestRunner({ paper }: { paper: Paper }) {
               Answered: {counts.ANSWERED + counts.ANSWERED_AND_MARKED}. Marked: {counts.MARKED + counts.ANSWERED_AND_MARKED}. You cannot change answers after submission.
             </p>
             <div className="mt-4 grid grid-cols-2 gap-2">
-              <Button type="button" variant="outline" className="min-h-11" onClick={() => setConfirming(false)}>
+              <Button type="button" variant="outline" className="min-h-12" disabled={submitting} onClick={() => setConfirming(false)}>
                 Review
               </Button>
-              <Button type="button" className="min-h-11" onClick={() => void finish(false)}>
-                Submit
+              <Button type="button" className="min-h-12" disabled={submitting} onClick={() => void finish(false)}>
+                {submitting ? "Submitting…" : "Submit"}
               </Button>
             </div>
           </div>
